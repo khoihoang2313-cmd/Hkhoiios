@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BATTER LOCK</title>
+    <style>
+        /* --- RESET & CƠ BẢN --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #0a0a0a;
+            color: #e0e0e0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .screen {
+            display: none;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- HIỆU ỨNG LẤP LÁNH (GLOW XÁM) --- */
+        @keyframes shine {
+            0% { box-shadow: 0 0 5px rgba(200, 200, 200, 0.3), 0 0 10px rgba(150, 150, 150, 0.2); }
+            50% { box-shadow: 0 0 15px rgba(220, 220, 220, 0.6), 0 0 25px rgba(180, 180, 180, 0.4); }
+            100% { box-shadow: 0 0 5px rgba(200, 200, 200, 0.3), 0 0 10px rgba(150, 150, 150, 0.2); }
+        }
+
+        @keyframes textShine {
+            0% { text-shadow: 0 0 5px rgba(200, 200, 200, 0.4); }
+            50% { text-shadow: 0 0 15px rgba(255, 255, 255, 0.9), 0 0 20px rgba(200, 200, 200, 0.6); }
+            100% { text-shadow: 0 0 5px rgba(200, 200, 200, 0.4); }
+        }
+
+        /* --- MÀN HÌNH ĐĂNG NHẬP --- */
+        #login-screen {
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle at center, #1a1a1a 0%, #000000 100%);
+        }
+
+        .login-container {
+            background: #141414;
+            padding: 40px;
+            border-radius: 12px;
+            border: 2px solid #555;
+            box-shadow: 0 0 25px rgba(150, 150, 150, 0.3);
+            text-align: center;
+            width: 350px;
+            animation: shine 3s infinite;
+        }
+
+        .logo h1 {
+            color: #fff;
+            font-size: 28px;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+            animation: textShine 3s infinite;
+        }
+
+        .logo h1 span {
+            color: #aaa;
+        }
+
+        .logo p {
+            color: #777;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            background: #0a0a0a;
+            border: 1px solid #555;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 16px;
+            margin-bottom: 15px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .input-group input:focus {
+            border-color: #aaa;
+            box-shadow: 0 0 15px rgba(200, 200, 200, 0.4);
+        }
+
+        .input-group button {
+            width: 100%;
+            padding: 12px;
+            background: #333;
+            border: 1px solid #666;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 0 10px rgba(150, 150, 150, 0.3);
+        }
+
+        .input-group button:hover {
+            background: #555;
+            box-shadow: 0 0 20px rgba(200, 200, 200, 0.6);
+        }
+
+        .error {
+            color: #ff6666;
+            margin-top: 15px;
+            font-size: 14px;
+            min-height: 20px;
+        }
+
+        /* --- MÀN HÌNH DASHBOARD --- */
+        #dashboard-screen {
+            background: #0a0a0a;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: #141414;
+            border-bottom: 2px solid #555;
+            box-shadow: 0 0 15px rgba(150, 150, 150, 0.2);
+        }
+
+        header h2 {
+            color: #fff;
+            font-size: 20px;
+            letter-spacing: 1px;
+            animation: textShine 3s infinite;
+        }
+
+        .logout-btn {
+            background: transparent;
+            border: 1px solid #666;
+            color: #ccc;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #333;
+            color: #fff;
+            box-shadow: 0 0 15px rgba(200, 200, 200, 0.5);
+        }
+
+        /* --- TAB NAVIGATION --- */
+        .tab-nav {
+            display: flex;
+            background: #141414;
+            border-bottom: 1px solid #333;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px;
+            background: transparent;
+            border: none;
+            color: #777;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab-btn.active {
+            color: #fff;
+           ">
+ border-bottom: 2px solid #aaa;
+            background:                    #1f1f1f <;
+            box-shadow: 0 0 10px rgba(150, 150, 150, 0.2) inset;
+        }
+
+        .tab-btn:hover {
+            background: #1f1f1f;
+            color: #ccc;
+        }
+
+       span class /* --- NỘI DUNG TAB --- */
+        .tab-content {
+            display: none;
+            padding: 20px;
+            overflow-y: auto;
+            height: calc(100vh - 130px);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* --- TRANG 1: BIỂU ĐỒ --- */
+        .chart-container {
+            background: #141414;
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 0 10px rgba(150, 150, 150, 0.1);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #999;
+        }
+
+        .chart-box {
+            height: 120px;
+            background: #0a0a0a;
+            border: 1px solid #222;
+            border-radius: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-line {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent 0%, #aaa 50%, transparent 100%);
+            opacity: 0.3;
+            animation: wave 2s infinite linear;
+        }
+
+        @keyframes wave {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .chart-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            font-weight: bold;
+            color: #ddd;
+            text-shadow: 0 0 10px rgba(200, 200, 200, 0.6);
+        }
+
+        /* --- TRANG 2: MENU CHỨC NĂNG --- */
+        .feature-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #141414;
+            border: 1px solid #333;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            transition: 0.3s;
+        }
+
+        .feature-item:hover {
+            border-color: #666;
+            box-shadow: 0 0 15px rgba(150, 150, 150, 0.2);
+        }
+
+        .feature-info h4 {
+            font-size: 15px;
+            color: #fff;
+            margin-bottom: 3px;
+        }
+
+        .feature-info p {
+            font-size: 12px;
+            color: #00cc66;
+        }
+
+        /* Switch Toggle (Nút gạt) */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #333;
+            transition: .4s;
+            border-radius: 26px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #aaa;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #555;
+            box-shadow: 0 0 15px rgba(200, 200, 200, 0.5);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+        }
+
+        /* Admin Panel */
+        .admin-panel {
+            margin-top: 20px;
+            background: #141414;
+            border: 1px solid #666;
+            border-radius: 10px;
+            padding: 20px;
+            display: none;
+            box-shadow: 0 0 20px rgba(150, 150, 150, 0.2);
+        }
+
+        .admin-panel h3 {
+            color: #fff;
+            margin-bottom: 15px;
+            font-size: 16px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+            animation: textShine 3s infinite;
+        }
+
+        .admin-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .admin-controls input, .admin-controls select {
+            padding: 10px;
+            background: #0a0a0a;
+            border: 1px solid #555;
+            border-radius: 5px;
+            color: #fff;
+            outline: none;
+        }
+
+        .admin-controls input:focus, .admin-controls select:focus {
+            border-color: #aaa;
+            box-shadow: 0 0 10px rgba(200, 200, 200, 0.3);
+        }
+
+        .admin-controls button {
+            padding: 10px;
+            background: #333;
+            border: 1px solid #666;
+            border-radius: 5px;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 0 10px rgba(150, 150, 150, 0.3);
+        }
+
+        .admin-controls button:hover {
+            background: #555;
+            box-shadow: 0 0 20px rgba(200, 200, 200, 0.6);
+        }
+
+        #generated-keys ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 15px;
+        }
+
+        #generated-keys li {
+            background: #1f1f1f;
+            padding: 10px;
+            margin-bottom: 5px;
+            border-left: 3px solid #888;
+            border-radius: 3px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 0 5px rgba(150, 150, 150, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- MÀN HÌNH ĐĂNG NHẬP -->
+    <div id="login-screen" class="screen active">
+        <div class="login-container">
+            <div class="logo">
+                <h1>BATTER<span>LOCK</span></h1>
+                <p>Hệ thống xác thực Key</p>
+            </div>
+            <div class="input-group">
+                <input type="text" id="key-input" placeholder="Nhập Key truy cập...">
+                <button onclick="checkKey()">KÍCH HOẠT</button>
+            </div>
+            <p id="error-msg" class="error"></p>
+        </div>
+    </div>
+
+    <!-- MÀN HÌNH CHÍNH (DASHBOARD) -->
+    <div id="dashboard-screen" class="screen">
+        <header>
+            <h2>BATTER LOCK</h2>
+            <button class="logout-btn" onclick="logout()">ĐĂNG XUẤT</button>
+        </header>
+
+        <!-- Thanh điều hướng Tab -->
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab('tab-performance', this)">HIỆU SUẤT</button>
+            <button class="tab-btn" onclick="switchTab('tab-features', this)">CHỨC NĂNG</button>
+        </div>
+
+        <!-- TAB 1: HIỆU SUẤT -->
+        <div id="tab-performance" class="tab-content active">
+            <div class="chart-container">
+                <div class="chart-header">
+                    <span>CPU (ước lượng)</span>
+                    <span>Target: 60 FPS</span>
+                </div>
+                <div class="chart-box">
+                    <div class="chart-line"></div>
+                    <div class="chart-value" id="cpu-value">45%</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-header">
+                    <span>RAM (MB) / Heap Used</span>
+                    <span>Scale auto</span>
+                </div>
+                <div class="chart-box">
+                    <div class="chart-line" style="background: linear-gradient(90deg, transparent 0%, #00cc66 50%, transparent 100%); opacity: 0.2;"></div>
+                    <div class="chart-value" style="color: #00cc66; text-shadow: 0 0 10px rgba(0,204,102,0.6);" id="ram-value">185 MB</div>
+                </div>
+            </div>
+
+            <div class="chart-container" style="text-align: center;">
+                <button onclick="playSound()" style="padding: 10px 20px; background: #333; border: 1px solid #666; color: #fff; border-radius: 5px; cursor: pointer; font-weight: bold; box-shadow: 0 0 15px rgba(150,150,150,0.4);">
+                    LÀM MỚI DỮ LIỆU
+                </button>
+            </div>
+        </div>
+
+        <!-- TAB 2: CHỨC NĂNG -->
+        <div id="tab-features" class="tab-content">
+            
+            <div class="feature-item">
+                <div class="feature-info">
+                    <h4>Battery Saver</h4>
+                    <p>✅ Tiết kiệm pin</p>
+="                </div>
+                <label class="switchsl">
+                    <input type="checkbox" onchange="toggleFeature(this, 'Battery Saver')">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-info">
+                    <h4>Network Boost</h4>
+                    <p>✅ Tăng tốc mạng</p>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" onchange="toggleFeature(this, 'Network Boost')">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-info">
+                    <h4>CPU Optimize</h4>
+                    <p>✅ Tối ưu CPU</p>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" onchange="toggleFeature(this, 'CPU Optimize')ider round"></span>
+                </label>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-info">
+                    <h4>RAM Cleaner</h4>
+                    <p>✅ Dọn dẹp RAM</p>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" onchange="toggleFeature(this, 'RAM Cleaner')">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-info">
+                    <h4>Screen Boost</h4>
+                    <p>✅ Tăng độ nhạy màn hình</p>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" onchange="toggleFeature(this, 'Screen Boost')">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-info">
+                    <h4>Sensitivity Boost</h4>
+                    <p>✅ Tăng độ nhạy cảm ứng</p>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" onchange="toggleFeature(this, 'Sensitivity Boost')">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+
+            <!-- ADMIN PANEL -->
+            <div id="admin-panel" class="admin-panel">
+                <h3>QUẢN TRỊ VIÊN</h3>
+                <div class="admin-controls">
+                    <input type="text" id="new-key-name" placeholder="Tên Key (VD: VIP-01)">
+                    <select id="key-duration">
+                        <option value="1">1 Ngày</option>
+                        <option value="7">7 Ngày</option>
+                        <option value="30">30 Ngày</option>
+                        <option value="9999">Vĩnh viễn</option>
+                    </select>
+                    <select id="key-device-limit">
+                        <option value="1">1 Thiết bị</option>
+                        <option value="2">2 Thiết bị</option>
+                        <option value="5">5 Thiết bị</option>
+                    </select>
+                    <button onclick="createKey()">TẠO KEY MỚI</button>
+                </div>
+                <div id="generated-keys">
+                    <h4>Danh sách Key đã tạo:</h4>
+                    <ul id="key-list-ul"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- CẤU HÌNH HỆ THỐNG ---
+        const ADMIN_KEY = "ADMIN-HKHOIDZ";
+
+        let keyDatabase = JSON.parse(localStorage.getItem('batterLockKeys')) || [
+            { key: ADMIN_KEY, expiry: "Vĩnh viễn", maxDevices: 999, type: "admin" },
+            { key: "VIP-123", expiry: "30 Ngày", maxDevices: 1, type: "user" },
+            { key: "TEST-456", expiry: "1 Ngày", maxDevices: 1, type: "user" }
+        ];
+
+        function saveDatabase() {
+            localStorage.setItem('batterLockKeys', JSON.stringify(keyDatabase));
+        }
+
+        // --- ÂM THANH ---
+        function playSound() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+
+                oscillator.type = 'sine';
+                oscillator.frequency.value = 1000;
+                gainNode.gain.value = 0.1;
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.08);
+            } catch (e) {
+                console.log("Lỗi âm thanh:", e);
+            }
+        }
+
+        // --- ĐĂNG NHẬP ---
+        function checkKey() {
+            const inputKey = document.getElementById('key-input').value.trim();
+            const errorMsg = document.getElementById('error-msg');
+
+            if (!inputKey) {
+                errorMsg.innerText = "Vui lòng nhập Key!";
+                return;
+            }
+
+            const foundKey = keyDatabase.find(item => item.key === inputKey);
+
+            if (foundKey) {
+                document.getElementById('login-screen').classList.remove('active');
+                document.getElementById('dashboard-screen').classList.add('active');
+                errorMsg.innerText = "";
+
+                if (inputKey === ADMIN_KEY) {
+                    document.getElementById('admin-panel').style.display = 'block';
+                    renderKeyList();
+                } else {
+                    document.getElementById('admin-panel').style.display = 'none';
+                }
+                
+                playSound();
+            } else {
+                errorMsg.innerText = "Key không hợp lệ hoặc đã hết hạn!";
+            }
+        }
+
+        // --- ĐĂNG XUẤT ---
+        function logout() {
+            document.getElementById('dashboard-screen').classList.remove('active');
+            document.getElementById('login-screen').classList.add('active');
+            document.getElementById('key-input').value = "";
+            document.getElementById('error-msg').innerText = "";
+            document.getElementById('admin-panel').style.display = 'none';
+        }
+
+        // --- CHUYỂN TAB ---
+        function switchTab(tabId, btnElement) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            btnElement.classList.add('active');
+
+            playSound();
+        }
+
+        // --- GẠT NÚT ---
+        function toggleFeature(checkbox, featureName) {
+            playSound();
+
+            const statusText = checkbox.parentElement.previousElementSibling.querySelector('p');
+            if (checkbox.checked) {
+                statusText.innerHTML = `✅ Đã bật ${featureName}`;
+                statusText.style.color = "#00cc66";
+            } else {
+                statusText.innerHTML = `❌ Đã tắt ${featureName}`;
+                statusText.style.color = "#ff6666";
+            }
+        }
+
+        // --- TẠO KEY (ADMIN) ---
+        function createKey() {
+            const nameInput = document.getElementById('new-key-name').value.trim();
+            const duration = document.getElementById('key-duration').value;
+            const deviceLimit = document.getElementById('key-device-limit').value;
+
+            if (!nameInput) {
+                alert("Vui lòng nhập tên Key!");
+                return;
+            }
+
+            const randomStr = Math.random().toString(36).substring(2, 8).toUpperCase();
+            const newKey = `${nameInput}-${randomStr}`;
+
+            const newKeyObj = {
+                key: newKey,
+                expiry: duration === "9999" ? "Vĩnh viễn" : `${duration} Ngày`,
+                maxDevices: parseInt(deviceLimit),
+                type: "user"
+            };
+
+            keyDatabase.push(newKeyObj);
+            saveDatabase();
+            
+            document.getElementById('new-key-name').value = "";
+            renderKeyList();
+            
+            playSound();
+            alert(`Đã tạo Key: ${newKey}`);
+        }
+
+        // --- HIỂN THỊ DANH SÁCH KEY ---
+        function renderKeyList() {
+            const listElement = document.getElementById('key-list-ul');
+            listElement.innerHTML = "";
+
+            const userKeys = keyDatabase.filter(k => k.type !== "admin");
+
+            if (userKeys.length === 0) {
+                listElement.innerHTML = "<li>Chưa có Key nào được tạo.</li>";
+                return;
+            }
+
+            userKeys.forEach(k => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span><strong>${k.key}</strong></span>
+                    <span style="color: #888; font-size: 12px;">${k.expiry} | ${k.maxDevices} TB</span>
+                `;
+                listElement.appendChild(li);
+            });
+        }
+
+        saveDatabase();
+        
+        // Giả lập cập nhật biểu đồ
+        setInterval(() => {
+            const cpuVal = Math.floor(Math.random() * 60) + 20;
+            const ramVal = Math.floor(Math.random() * 100) + 150;
+            document.getElementById('cpu-value').innerText = cpuVal + "%";
+            document.getElementById('ram-value').innerText = ramVal + " MB";
+        }, 2000);
+    </script>
+
+</body>
+</html>
